@@ -13,5 +13,6 @@ export class Game extends Phaser.State {
     this.add.sprite(0, 0, 'background');
 
     this.board = new Board(this, NumRows, NumCols, NumVariations);
+    this.board.consoleLog();
   }
 }
