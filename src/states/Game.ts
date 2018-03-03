@@ -2,7 +2,7 @@ import { Board } from '../prefabs/Board';
 
 const NumRows = 8;
 const NumCols = 8;
-const NumVariations = 7;
+const NumVariations = 6;
 const BlockSize = 35;
 const AnimationTime = 200;
 
