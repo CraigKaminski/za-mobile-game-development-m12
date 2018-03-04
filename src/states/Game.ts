@@ -1,13 +1,13 @@
 import { Block, IBlockData } from '../prefabs/Block';
-import { Board } from '../prefabs/Board';
+import { Board, IGridCoord } from '../prefabs/Board';
 
 const NumRows = 8;
 const NumCols = 8;
 const NumVariations = 6;
 const BlockSize = 35;
-const AnimationTime = 200;
 
 export class Game extends Phaser.State {
+  public readonly AnimationTime = 200;
   private blocks: Phaser.Group;
   private board: Board;
 
@@ -19,6 +19,18 @@ export class Game extends Phaser.State {
     this.board.consoleLog();
 
     this.drawBoard();
+  }
+
+  public getBlockFromColRow(position: IGridCoord) {
+    let foundBlock: Block = this.blocks.getFirstDead();
+
+    this.blocks.forEachAlive((block: Block) => {
+      if (block.row === position.row && block.col === position.col) {
+        foundBlock = block;
+      }
+    }, this);
+
+    return foundBlock;
   }
 
   private createBlock(x: number, y: number, data: IBlockData) {

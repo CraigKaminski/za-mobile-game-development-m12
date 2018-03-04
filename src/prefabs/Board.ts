@@ -1,4 +1,6 @@
-interface IGridCoord {
+import { Game } from '../states/Game';
+
+export interface IGridCoord {
   row: number;
   col: number;
 }
@@ -9,9 +11,9 @@ export class Board {
   private cols: number;
   private reserveGrid: number[][];
   private rows: number;
-  private state: Phaser.State;
+  private state: Game;
 
-  constructor(state: Phaser.State, rows: number, cols: number, blockVariations: number) {
+  constructor(state: Game, rows: number, cols: number, blockVariations: number) {
     this.state = state;
     this.rows = rows;
     this.cols = cols;
@@ -72,6 +74,7 @@ export class Board {
 
     chainedBlocks.forEach((block) => {
       this.grid[block.row][block.col] = 0;
+      this.state.getBlockFromColRow(block).kill();
     });
   }
 

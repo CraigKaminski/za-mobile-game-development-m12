@@ -1,3 +1,5 @@
+import { Game } from '../states/Game';
+
 export interface IBlockData {
   asset: string;
   col: number;
@@ -5,11 +7,11 @@ export interface IBlockData {
 }
 
 export class Block extends Phaser.Sprite {
-  private col: number;
-  private row: number;
-  private state: Phaser.State;
+  public col: number | null;
+  public row: number | null;
+  private state: Game;
 
-  constructor(state: Phaser.State, x: number, y: number, data: IBlockData) {
+  constructor(state: Game, x: number, y: number, data: IBlockData) {
     super(state.game, x, y, data.asset);
 
     this.state = state;
@@ -17,6 +19,18 @@ export class Block extends Phaser.Sprite {
     this.col = data.col;
 
     this.anchor.setTo(0.5);
+  }
+
+  public kill() {
+    this.loadTexture('deadBlock');
+    this.col = null;
+    this.row = null;
+
+    this.game.time.events.add(this.state.AnimationTime / 2, () => {
+      super.kill();
+    }, this);
+
+    return this;
   }
 
   public resetData(x: number, y: number, data: IBlockData) {
