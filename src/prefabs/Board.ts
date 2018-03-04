@@ -4,9 +4,9 @@ interface IGridCoord {
 }
 
 export class Board {
+  public grid: number[][];
   private blockVariations: number;
   private cols: number;
-  private grid: number[][];
   private reserveGrid: number[][];
   private rows: number;
   private state: Phaser.State;
