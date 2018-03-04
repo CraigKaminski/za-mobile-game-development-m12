@@ -65,6 +65,13 @@ export class Board {
     });
   }
 
+  public checkAdjacent(source: IGridCoord, target: IGridCoord) {
+    const diffRow = Math.abs(source.row - target.row);
+    const diffCol = Math.abs(source.col - target.col);
+
+    return (diffRow === 1 && diffCol === 0) || (diffRow === 0 && diffCol === 1);
+  }
+
   public findAllChains() {
     const chained: IGridCoord[] = [];
 
@@ -115,13 +122,6 @@ export class Board {
     }
 
     this.populateReserveGrid();
-  }
-
-  private checkAdjacent(source: IGridCoord, target: IGridCoord) {
-    const diffRow = Math.abs(source.row - target.row);
-    const diffCol = Math.abs(source.col - target.col);
-
-    return (diffRow === 1 && diffCol === 0) || (diffRow === 0 && diffCol === 1);
   }
 
   private dropBlock(sourceRow: number, targetRow: number, col: number) {

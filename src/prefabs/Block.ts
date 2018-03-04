@@ -19,6 +19,9 @@ export class Block extends Phaser.Sprite {
     this.col = data.col;
 
     this.anchor.setTo(0.5);
+
+    this.inputEnabled = true;
+    this.events.onInputDown.add(state.pickBlock, this.state);
   }
 
   public kill() {

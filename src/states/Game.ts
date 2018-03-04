@@ -10,7 +10,10 @@ export class Game extends Phaser.State {
   public readonly AnimationTime = 200;
   private blocks: Phaser.Group;
   private board: Board;
+  private isBoardBlocked = false;
   private isReversingSwap = false;
+  private selectedBlock: Block | null;
+  private targetBlock: Block | null;
 
   public create() {
     this.add.sprite(0, 0, 'background');
@@ -57,6 +60,35 @@ export class Game extends Phaser.State {
     return foundBlock;
   }
 
+  public pickBlock(block: Block) {
+    if (this.isBoardBlocked) {
+      return;
+    }
+
+    if (!this.selectedBlock) {
+      block.scale.setTo(1.5);
+
+      this.selectedBlock = block;
+    } else {
+      this.targetBlock = block;
+
+      if (this.board.checkAdjacent(this.selectedBlock, this.targetBlock)) {
+        this.isBoardBlocked = true;
+
+        this.swapBlocks(this.selectedBlock, this.targetBlock);
+      } else {
+        this.clearSelection();
+      }
+    }
+  }
+
+  private clearSelection() {
+    this.isBoardBlocked = false;
+    this.selectedBlock = null;
+    this.blocks.setAll('scale.x', 1);
+    this.blocks.setAll('scale.y', 1);
+  }
+
   private createBlock(x: number, y: number, data: IBlockData) {
     let block = this.blocks.getFirstExists(false);
 
@@ -92,6 +124,8 @@ export class Game extends Phaser.State {
   }
 
   private swapBlocks(block1: Block, block2: Block) {
+    block1.scale.setTo(1);
+
     const block1Movement = this.add.tween(block1);
     block1Movement.to({ x: block2.x, y: block2.y }, this.AnimationTime);
     block1Movement.onComplete.add(() => {
@@ -109,6 +143,7 @@ export class Game extends Phaser.State {
         }
       } else {
         this.isReversingSwap = false;
+        this.clearSelection();
       }
     }, this);
     block1Movement.start();
