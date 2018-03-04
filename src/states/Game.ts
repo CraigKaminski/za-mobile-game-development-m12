@@ -21,6 +21,29 @@ export class Game extends Phaser.State {
     this.drawBoard();
   }
 
+  public dropBlock(sourceRow: number, targetRow: number, col: number) {
+    const block = this.getBlockFromColRow({row: sourceRow, col});
+    const targetY = 150 + targetRow * (BlockSize + 6);
+
+    block.row = targetRow;
+
+    const blockMovement = this.add.tween(block);
+    blockMovement.to({y: targetY}, this.AnimationTime);
+    blockMovement.start();
+  }
+
+  public dropReserveBlock(sourceRow: number, targetRow: number, col: number) {
+    const x = 36 + col * (BlockSize + 6);
+    const y = (BlockSize + 6) * NumRows + sourceRow * (BlockSize + 6);
+
+    const block = this.createBlock(x, y, {asset: 'block' + this.board.grid[targetRow][col], row: targetRow, col});
+    const targetY = 150 + targetRow * (BlockSize + 6);
+
+    const blockMovement = this.add.tween(block);
+    blockMovement.to({y: targetY}, this.AnimationTime);
+    blockMovement.start();
+  }
+
   public getBlockFromColRow(position: IGridCoord) {
     let foundBlock: Block = this.blocks.getFirstDead();
 

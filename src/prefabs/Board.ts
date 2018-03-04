@@ -81,11 +81,15 @@ export class Board {
   private dropBlock(sourceRow: number, targetRow: number, col: number) {
     this.grid[targetRow][col] = this.grid[sourceRow][col];
     this.grid[sourceRow][col] = 0;
+
+    this.state.dropBlock(sourceRow, targetRow, col);
   }
 
   private dropReserveBlock(sourceRow: number, targetRow: number, col: number) {
     this.grid[targetRow][col] = this.reserveGrid[sourceRow][col];
     this.reserveGrid[sourceRow][col] = 0;
+
+    this.state.dropReserveBlock(sourceRow, targetRow, col);
   }
 
   private findAllChains() {
