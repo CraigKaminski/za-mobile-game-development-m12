@@ -1,3 +1,4 @@
+import { Block } from '../prefabs/Block';
 import { Game } from '../states/Game';
 
 export interface IGridCoord {
@@ -53,7 +54,7 @@ export class Board {
 
     this.grid.map((row) => output += row.join(' ') + '\n');
 
-    console.log(output);
+    console.log(output); // tslint:disable-line:no-console
   }
 
   public clearChains() {
@@ -87,10 +88,17 @@ export class Board {
     return chained;
   }
 
-  public swap(source: IGridCoord, target: IGridCoord) {
+  public swap(source: Block, target: Block) {
     const temp = this.grid[target.row][target.col];
     this.grid[target.row][target.col] = this.grid[source.row][source.col];
     this.grid[source.row][source.col] = temp;
+
+    const tempPos: IGridCoord = {row: source.row, col: source.col};
+    source.row = target.row;
+    source.col = target.col;
+
+    target.row = tempPos.row;
+    target.col = tempPos.col;
   }
 
   public updateGrid() {

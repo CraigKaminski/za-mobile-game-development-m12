@@ -20,7 +20,6 @@ export class Game extends Phaser.State {
     this.blocks = this.add.group();
 
     this.board = new Board(this, NumRows, NumCols, NumVariations);
-    this.board.consoleLog();
 
     this.drawBoard();
   }
@@ -129,14 +128,13 @@ export class Game extends Phaser.State {
     const block1Movement = this.add.tween(block1);
     block1Movement.to({ x: block2.x, y: block2.y }, this.AnimationTime);
     block1Movement.onComplete.add(() => {
-      this.board.swap({ row: block1.row, col: block1.col }, { row: block2.row, col: block2.col });
+      this.board.swap(block1, block2);
 
       if (!this.isReversingSwap) {
         const chains = this.board.findAllChains();
 
         if (chains.length > 0) {
-          this.board.clearChains();
-          this.board.updateGrid();
+          this.updateBoard();
         } else {
           this.isReversingSwap = true;
           this.swapBlocks(block1, block2);
@@ -151,5 +149,21 @@ export class Game extends Phaser.State {
     const block2Movement = this.add.tween(block2);
     block2Movement.to({ x: block1.x, y: block1.y }, this.AnimationTime);
     block2Movement.start();
+  }
+
+  private updateBoard() {
+    this.board.clearChains();
+    this.board.updateGrid();
+    this.board.consoleLog();
+
+    this.time.events.add(this.AnimationTime, () => {
+      const chains = this.board.findAllChains();
+
+      if (chains.length > 0) {
+        this.updateBoard();
+      } else {
+        this.clearSelection();
+      }
+    }, this);
   }
 }
