@@ -38,7 +38,7 @@ export class Game extends Phaser.State {
 
   public dropReserveBlock(sourceRow: number, targetRow: number, col: number) {
     const x = 36 + col * (BlockSize + 6);
-    const y = (BlockSize + 6) * NumRows + sourceRow * (BlockSize + 6);
+    const y = -(BlockSize + 6) * NumRows + sourceRow * (BlockSize + 6);
 
     const block = this.createBlock(x, y, { asset: 'block' + this.board.grid[targetRow][col], row: targetRow, col });
     const targetY = 150 + targetRow * (BlockSize + 6);
