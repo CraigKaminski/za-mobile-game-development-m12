@@ -10,6 +10,7 @@ export class Game extends Phaser.State {
   public readonly AnimationTime = 200;
   private blocks: Phaser.Group;
   private board: Board;
+  private isReversingSwap = false;
 
   public create() {
     this.add.sprite(0, 0, 'background');
@@ -22,13 +23,13 @@ export class Game extends Phaser.State {
   }
 
   public dropBlock(sourceRow: number, targetRow: number, col: number) {
-    const block = this.getBlockFromColRow({row: sourceRow, col});
+    const block = this.getBlockFromColRow({ row: sourceRow, col });
     const targetY = 150 + targetRow * (BlockSize + 6);
 
     block.row = targetRow;
 
     const blockMovement = this.add.tween(block);
-    blockMovement.to({y: targetY}, this.AnimationTime);
+    blockMovement.to({ y: targetY }, this.AnimationTime);
     blockMovement.start();
   }
 
@@ -36,11 +37,11 @@ export class Game extends Phaser.State {
     const x = 36 + col * (BlockSize + 6);
     const y = (BlockSize + 6) * NumRows + sourceRow * (BlockSize + 6);
 
-    const block = this.createBlock(x, y, {asset: 'block' + this.board.grid[targetRow][col], row: targetRow, col});
+    const block = this.createBlock(x, y, { asset: 'block' + this.board.grid[targetRow][col], row: targetRow, col });
     const targetY = 150 + targetRow * (BlockSize + 6);
 
     const blockMovement = this.add.tween(block);
-    blockMovement.to({y: targetY}, this.AnimationTime);
+    blockMovement.to({ y: targetY }, this.AnimationTime);
     blockMovement.start();
   }
 
@@ -75,7 +76,7 @@ export class Game extends Phaser.State {
     squareBitmap.ctx.fillRect(0, 0, BlockSize + 4, BlockSize + 4);
 
     for (let i = 0; i < NumRows; i++) {
-      for (let j = 0; j < NumCols; j++ ) {
+      for (let j = 0; j < NumCols; j++) {
         const x = 36 + j * (BlockSize + 6);
         const y = 150 + i * (BlockSize + 6);
 
@@ -83,10 +84,37 @@ export class Game extends Phaser.State {
         square.anchor.setTo(0.5);
         square.alpha = 0.2;
 
-        this.createBlock(x, y, {asset: 'block' + this.board.grid[i][j], row: i, col: j});
+        this.createBlock(x, y, { asset: 'block' + this.board.grid[i][j], row: i, col: j });
       }
     }
 
     this.world.bringToTop(this.blocks);
+  }
+
+  private swapBlocks(block1: Block, block2: Block) {
+    const block1Movement = this.add.tween(block1);
+    block1Movement.to({ x: block2.x, y: block2.y }, this.AnimationTime);
+    block1Movement.onComplete.add(() => {
+      this.board.swap({ row: block1.row, col: block1.col }, { row: block2.row, col: block2.col });
+
+      if (!this.isReversingSwap) {
+        const chains = this.board.findAllChains();
+
+        if (chains.length > 0) {
+          this.board.clearChains();
+          this.board.updateGrid();
+        } else {
+          this.isReversingSwap = true;
+          this.swapBlocks(block1, block2);
+        }
+      } else {
+        this.isReversingSwap = false;
+      }
+    }, this);
+    block1Movement.start();
+
+    const block2Movement = this.add.tween(block2);
+    block2Movement.to({ x: block1.x, y: block1.y }, this.AnimationTime);
+    block2Movement.start();
   }
 }

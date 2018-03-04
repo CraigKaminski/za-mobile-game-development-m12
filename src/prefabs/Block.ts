@@ -7,8 +7,8 @@ export interface IBlockData {
 }
 
 export class Block extends Phaser.Sprite {
-  public col: number | null;
-  public row: number | null;
+  public col: number;
+  public row: number;
   private state: Game;
 
   constructor(state: Game, x: number, y: number, data: IBlockData) {
@@ -23,8 +23,8 @@ export class Block extends Phaser.Sprite {
 
   public kill() {
     this.loadTexture('deadBlock');
-    this.col = null;
-    this.row = null;
+    this.col = -1;
+    this.row = -1;
 
     this.game.time.events.add(this.state.AnimationTime / 2, () => {
       super.kill();

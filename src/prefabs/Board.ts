@@ -56,10 +56,65 @@ export class Board {
     console.log(output);
   }
 
+  public clearChains() {
+    const chainedBlocks: IGridCoord[] = this.findAllChains();
+
+    chainedBlocks.forEach((block) => {
+      this.grid[block.row][block.col] = 0;
+      this.state.getBlockFromColRow(block).kill();
+    });
+  }
+
+  public findAllChains() {
+    const chained: IGridCoord[] = [];
+
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.cols; j++) {
+        const coord = {row: i, col: j};
+        if (this.isChained(coord)) {
+          chained.push(coord);
+        }
+      }
+    }
+
+    return chained;
+  }
+
   public swap(source: IGridCoord, target: IGridCoord) {
     const temp = this.grid[target.row][target.col];
     this.grid[target.row][target.col] = this.grid[source.row][source.col];
     this.grid[source.row][source.col] = temp;
+  }
+
+  public updateGrid() {
+    let foundBlock = false;
+
+    for (let i = this.rows - 1; i >= 0; i--) {
+      for (let j = 0; j < this.cols; j++) {
+        if (this.grid[i][j] === 0) {
+          foundBlock = false;
+
+          for (let k = i - 1; k >= 0; k--) {
+            if (this.grid[k][j] > 0) {
+              this.dropBlock(k, i, j);
+              foundBlock = true;
+              break;
+            }
+          }
+
+          if (!foundBlock) {
+            for (let k = this.rows - 1; k >= 0; k--) {
+              if (this.reserveGrid[k][j] > 0) {
+                this.dropReserveBlock(k, i, j);
+                break;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    this.populateReserveGrid();
   }
 
   private checkAdjacent(source: IGridCoord, target: IGridCoord) {
@@ -67,15 +122,6 @@ export class Board {
     const diffCol = Math.abs(source.col - target.col);
 
     return (diffRow === 1 && diffCol === 0) || (diffRow === 0 && diffCol === 1);
-  }
-
-  private clearChains() {
-    const chainedBlocks: IGridCoord[] = this.findAllChains();
-
-    chainedBlocks.forEach((block) => {
-      this.grid[block.row][block.col] = 0;
-      this.state.getBlockFromColRow(block).kill();
-    });
   }
 
   private dropBlock(sourceRow: number, targetRow: number, col: number) {
@@ -90,21 +136,6 @@ export class Board {
     this.reserveGrid[sourceRow][col] = 0;
 
     this.state.dropReserveBlock(sourceRow, targetRow, col);
-  }
-
-  private findAllChains() {
-    const chained: IGridCoord[] = [];
-
-    for (let i = 0; i < this.rows; i++) {
-      for (let j = 0; j < this.cols; j++) {
-        const coord = {row: i, col: j};
-        if (this.isChained(coord)) {
-          chained.push(coord);
-        }
-      }
-    }
-
-    return chained;
   }
 
   private isChained(block: IGridCoord) {
@@ -163,6 +194,11 @@ export class Board {
         this.grid[i][j] = variation;
       }
     }
+
+    const chains = this.findAllChains();
+    if (chains.length > 0) {
+      this.populateGrid();
+    }
   }
 
   private populateReserveGrid() {
@@ -172,36 +208,5 @@ export class Board {
         this.reserveGrid[i][j] = variation;
       }
     }
-  }
-
-  private updateGrid() {
-    let foundBlock = false;
-
-    for (let i = this.rows - 1; i >= 0; i--) {
-      for (let j = 0; j < this.cols; j++) {
-        if (this.grid[i][j] === 0) {
-          foundBlock = false;
-
-          for (let k = i - 1; k >= 0; k--) {
-            if (this.grid[k][j] > 0) {
-              this.dropBlock(k, i, j);
-              foundBlock = true;
-              break;
-            }
-          }
-
-          if (!foundBlock) {
-            for (let k = this.rows - 1; k >= 0; k--) {
-              if (this.reserveGrid[k][j] > 0) {
-                this.dropReserveBlock(k, i, j);
-                break;
-              }
-            }
-          }
-        }
-      }
-    }
-
-    this.populateReserveGrid();
   }
 }
